@@ -9,6 +9,7 @@ The sample is well-informed by the official [Redux examples](https://github.com/
 Clone the repo and run the installation commands, each in a new terminal window.
 
 ```bash
+git submodule update --init
 npm run server
 
 # New terminal window
