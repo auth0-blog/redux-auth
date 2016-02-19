@@ -7,8 +7,6 @@ export default class Login extends Component {
     
     return (
       <div>
-        <input type='text' ref='username' className="form-control" style={{ marginRight: '5px' }} placeholder='Username'/>
-        <input type='password' ref='password' className="form-control" style={{ marginRight: '5px' }} placeholder='Password'/>
         <button onClick={(event) => this.handleClick(event)} className="btn btn-primary">
           Login
         </button>
@@ -21,10 +19,7 @@ export default class Login extends Component {
   }
   
   handleClick(event) {
-    const username = this.refs.username
-    const password = this.refs.password
-    const creds = { username: username.value.trim(), password: password.value.trim() }
-    this.props.onLoginClick(creds)
+    this.props.onLoginClick()
   }
 }
 

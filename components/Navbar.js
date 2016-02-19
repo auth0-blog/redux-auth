@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react'
 import Login from './Login'
 import Logout from './Logout'
-import { loginUser, logoutUser } from '../actions'
+import { login, logoutUser } from '../actions'
 
 export default class Navbar extends Component {
   
@@ -17,7 +17,7 @@ export default class Navbar extends Component {
            {!isAuthenticated &&
              <Login
                errorMessage={errorMessage}
-               onLoginClick={ creds => dispatch(loginUser(creds)) }
+               onLoginClick={ () => dispatch(login()) }
              />
            }
            

@@ -1,36 +1,50 @@
 // The middleware to call the API for quotes
 import { CALL_API } from './middleware/api'
 
-// There are three possible states for our login
-// process and we need actions for each of them
-export const LOGIN_REQUEST = 'LOGIN_REQUEST'
-export const LOGIN_SUCCESS = 'LOGIN_SUCCESS'
-export const LOGIN_FAILURE = 'LOGIN_FAILURE'
 
-function requestLogin(creds) {
+// There are two possible states for our login
+// process and we need actions for each of them.
+//
+// We also need one to show the Lock widget.
+export const SHOW_LOCK = 'SHOW_LOCK'
+export const LOCK_SUCCESS = 'LOCK_SUCCESS'
+export const LOCK_ERROR = 'LOCK_ERROR'
+
+function showLock() {
   return {
-    type: LOGIN_REQUEST,
-    isFetching: true,
-    isAuthenticated: false,
-    creds
+    type: SHOW_LOCK
   }
 }
 
-function receiveLogin(user) {
+function lockSuccess(profile, token) {
   return {
-    type: LOGIN_SUCCESS,
-    isFetching: false,
-    isAuthenticated: true,
-    id_token: user.id_token
+    type: LOCK_SUCCESS,
+    profile,
+    token
   }
 }
 
-function loginError(message) {
+function lockError(err) {
   return {
-    type: LOGIN_FAILURE,
-    isFetching: false,
-    isAuthenticated: false,
-    message
+    type: LOCK_ERROR,
+    err
+  }
+}
+
+// Opens the Lock widget and
+// dispatches actions along the way
+export function login() {
+  const lock = new Auth0Lock('YOUR_CLIENT_ID', 'YOUR_CLIENT_DOMAIN');
+  return dispatch => {
+    lock.show((err, profile, token) => {
+      if(err) {
+        dispatch(lockError(err))
+        return
+      }
+      localStorage.setItem('profile', JSON.stringify(profile))
+      localStorage.setItem('id_token', token)
+      dispatch(lockSuccess(profile, token))
+    })
   }
 }
 
@@ -58,40 +72,6 @@ function receiveLogout() {
   }
 }
 
-// Calls the API to get a token and
-// dispatches actions along the way
-export function loginUser(creds) {
-  
-  let config = {
-    method: 'POST',
-    headers: { 'Content-Type':'application/x-www-form-urlencoded' },
-    body: `username=${creds.username}&password=${creds.password}`
-  }
-  
-  return dispatch => {
-    // We dispatch requestLogin to kickoff the call to the API
-    dispatch(requestLogin(creds))
-    return fetch('http://localhost:3001/sessions/create', config)
-      .then(response =>
-        response.json()
-        .then(user => ({ user, response }))
-      ).then(({ user, response }) =>  {
-        if (!response.ok) {
-          // If there was a problem, we want to
-          // dispatch the error condition
-          dispatch(loginError(user.message))
-          return Promise.reject(user)
-        }
-        else {
-          // If login was successful, set the token in local storage
-          localStorage.setItem('id_token', user.id_token)
-          
-          // Dispatch the success action
-          dispatch(receiveLogin(user))
-        }
-      }).catch(err => console.log("Error: ", err))
-  }
-}
 
 // Logs the user out
 export function logoutUser() {
@@ -101,6 +81,7 @@ export function logoutUser() {
     dispatch(receiveLogout())
   }
 }
+
 
 export const QUOTE_REQUEST = 'QUOTE_REQUEST'
 export const QUOTE_SUCCESS = 'QUOTE_SUCCESS'
