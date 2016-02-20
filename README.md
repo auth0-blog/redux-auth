@@ -2,6 +2,8 @@
 
 This is a sample of how to implement JWT authentication in React and [Redux](https://github.com/rackt/redux) apps. It uses Auth0's [NodeJS JWT Authentication Sample](https://github.com/auth0/nodejs-jwt-authentication-sample) to authenticate users and retrieve quotes from a protected endpoint.
 
+In this sample we will use Auth0's [Lock Library](https://auth0.com/docs/libraries/lock). We will install Lock via npm and include it with the rest of our code using Webpack.
+
 The sample is well-informed by the official [Redux examples](https://github.com/rackt/redux/tree/master/examples).
 
 ## Installation
@@ -17,6 +19,32 @@ npm install
 cd server && npm install
 cd ..
 
+```
+
+## Auth0 Settings
+
+Navigate to your App's Settings page in your Auth0 account.
+
+#### CORS
+
+Add your Origin URLs to the Allowed Origins (CORS) list. For this example it would be `http://localhost:3000/`.
+
+#### Update actions.js
+
+Update the login function in your actions with your app's Auth0 ClientID and Domain.
+
+```js
+// Opens the Lock widget and
+// dispatches actions along the way
+export function login() {
+  const lock = new Auth0Lock('YOUR_CLIENT_ID', 'YOUR_CLIENT_DOMAIN');
+  ...
+}
+```
+
+## Running the Sample
+
+```bash
 # Run the server
 npm run server
 
@@ -33,36 +61,32 @@ Users are authenticated by making a `fetch` request to `localhost:3001/sessions/
 ```js
 // actions.js
 
-// There are three possible states for our login
-// process and we need actions for each of them
-export const LOGIN_REQUEST = 'LOGIN_REQUEST'
-export const LOGIN_SUCCESS = 'LOGIN_SUCCESS'
-export const LOGIN_FAILURE = 'LOGIN_FAILURE'
+// There are two possible states for our login
+// process and we need actions for each of them.
+//
+// We also need one to show the Lock widget.
+export const SHOW_LOCK = 'SHOW_LOCK'
+export const LOCK_SUCCESS = 'LOCK_SUCCESS'
+export const LOCK_ERROR = 'LOCK_ERROR'
 
-function requestLogin(creds) {
+function showLock() {
   return {
-    type: LOGIN_REQUEST,
-    isFetching: true,
-    isAuthenticated: false,
-    creds
+    type: SHOW_LOCK
   }
 }
 
-function receiveLogin(user) {
+function lockSuccess(profile, token) {
   return {
-    type: LOGIN_SUCCESS,
-    isFetching: false,
-    isAuthenticated: true,
-    id_token: user.id_token
+    type: LOCK_SUCCESS,
+    profile,
+    token
   }
 }
 
-function loginError(message) {
+function lockError(err) {
   return {
-    type: LOGIN_FAILURE,
-    isFetching: false,
-    isAuthenticated: false,
-    message
+    type: LOCK_ERROR,
+    err
   }
 }
 
@@ -90,38 +114,20 @@ function receiveLogout() {
   }
 }
 
-// Calls the API to get a token and
+// Opens the Lock widget and
 // dispatches actions along the way
-export function loginUser(creds) {
-  
-  let config = {
-    method: 'POST',
-    headers: { 'Content-Type':'application/x-www-form-urlencoded' },
-    body: `username=${creds.username}&password=${creds.password}`
-  }
-  
+export function login() {
+  const lock = new Auth0Lock('YOUR_CLIENT_ID', 'YOUR_CLIENT_DOMAIN');
   return dispatch => {
-    // We dispatch requestLogin to kickoff the call to the API
-    dispatch(requestLogin(creds))
-    return fetch('http://localhost:3001/sessions/create', config)
-      .then(response =>
-        response.json()
-        .then(user => ({ user, response }))
-      ).then(({ user, response }) =>  {
-        if (!response.ok) {
-          // If there was a problem, we want to
-          // dispatch the error condition
-          dispatch(loginError(user.message))
-          return Promise.reject(user)
-        }
-        else {
-          // If login was successful, set the token in local storage
-          localStorage.setItem('id_token', user.id_token)
-          
-          // Dispatch the success action
-          dispatch(receiveLogin(user))
-        }
-      }).catch(err => console.log("Error: ", err))
+    lock.show((err, profile, token) => {
+      if(err) {
+        dispatch(lockError(err))
+        return
+      }
+      localStorage.setItem('profile', JSON.stringify(profile))
+      localStorage.setItem('id_token', token)
+      dispatch(lockSuccess(profile, token))
+    })
   }
 }
 
@@ -247,23 +253,11 @@ function auth(state = {
     isAuthenticated: localStorage.getItem('id_token') ? true : false
   }, action) {
   switch (action.type) {
-    case LOGIN_REQUEST:
-      return Object.assign({}, state, {
-        isFetching: true,
-        isAuthenticated: false,
-        user: action.creds
-      })
-    case LOGIN_SUCCESS:
+    case LOCK_SUCCESS:
       return Object.assign({}, state, {
         isFetching: false,
         isAuthenticated: true,
         errorMessage: ''
-      })
-    case LOGIN_FAILURE:
-      return Object.assign({}, state, {
-        isFetching: false,
-        isAuthenticated: false,
-        errorMessage: action.message
       })
     case LOGOUT_SUCCESS:
       return Object.assign({}, state, {

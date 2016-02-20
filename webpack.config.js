@@ -24,6 +24,19 @@ module.exports = {
       exclude: /node_modules/,
       include: __dirname
     }, {
+      test: /node_modules\/auth0-lock\/.*\.js$/,
+      loaders: [
+        'transform/cacheable?brfs',
+        'transform/cacheable?packageify'
+      ]
+    }, {
+      test: /node_modules\/auth0-lock\/.*\.ejs$/,
+      loader: 'transform/cacheable?ejsify'
+    }, {
+      test: /\.json?$/,
+      exclude: /node_modules/,
+      loader: 'json',
+    }, {
       test: /\.css?$/,
       loaders: [ 'style', 'raw' ],
       include: __dirname
