@@ -4,6 +4,8 @@ This is a sample of how to implement JWT authentication in React and [Redux](htt
 
 The sample is well-informed by the official [Redux examples](https://github.com/rackt/redux/tree/master/examples).
 
+**Check the [auth0-lock](https://github.com/auth0/redux-auth/tree/auth0-lock) branch for the Auth0 specific version**
+
 ## Installation
 
 Clone the repo and run the installation commands, each in a new terminal window.
