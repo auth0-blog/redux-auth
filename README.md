@@ -42,6 +42,17 @@ export function login() {
 }
 ```
 
+#### Update server/protected-routes
+
+Update the jwtCheck variable in `server/protected-routes.js` to the following:
+
+```js
+var jwtCheck = jwt({
+  secret: new Buffer('YOUR_CLIENT_SECRET', 'base64'),
+  audience: 'YOUR_CLIENT_ID'
+});
+```
+
 ## Running the Sample
 
 ```bash
@@ -56,7 +67,7 @@ The app will be served at `localhost:3000`.
 
 ## Important Snippets
 
-Users are authenticated by making a `fetch` request to `localhost:3001/sessions/create`. We have actions setup for this.
+Users are authenticated using the Auth0 Lock widget. We have actions setup for this.
 
 ```js
 // actions.js
@@ -304,11 +315,6 @@ const quotesApp = combineReducers({
 
 export default quotesApp
 ```
-
-## License
-
-MIT
-
 ## What is Auth0?
 
 Auth0 helps you to:
@@ -325,7 +331,14 @@ Auth0 helps you to:
 1. Go to [Auth0](https://auth0.com) and click Sign Up.
 2. Use Google, GitHub or Microsoft Account to login.
 
+## Issue Reporting
+
+If you have found a bug or if you have a feature request, please report them at this repository issues section. Please do not report security vulnerabilities on the public GitHub issue tracker. The [Responsible Disclosure Program](https://auth0.com/whitehat) details the procedure for disclosing security issues.
+
 ## Author
 
 [Auth0](https://auth0.com)
 
+## License
+
+This project is licensed under the MIT license. See the [LICENSE](LICENSE) file for more info.
