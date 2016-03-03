@@ -7,16 +7,29 @@ import quotesApp from './reducers'
 import thunkMiddleware from 'redux-thunk'
 import api from './middleware/api'
 
+
+import { createDevTools } from 'redux-devtools'
+import LogMonitor from 'redux-devtools-log-monitor'
+import DockMonitor from 'redux-devtools-dock-monitor'
+
+const DevTools = createDevTools(
+  <DockMonitor toggleVisibilityKey="ctrl-h" changePositionKey="ctrl-q">
+    <LogMonitor theme="tomorrow" preserveScrollTop={false} />
+  </DockMonitor>
+)
+
 let createStoreWithMiddleware = applyMiddleware(thunkMiddleware, api)(createStore)
 
-let store = createStoreWithMiddleware(quotesApp)
+let store = createStoreWithMiddleware(quotesApp, DevTools.instrument())
 
 let rootElement = document.getElementById('root')
 
 render(
   <Provider store={store}>
-    <App />
+    <div>
+      <App />
+      <DevTools />
+    </div>
   </Provider>,
   rootElement
 )
-

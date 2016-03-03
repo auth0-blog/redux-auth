@@ -22,6 +22,9 @@
     "babel-plugin-react-transform": "^1.1.0",
     "concurrently": "^2.0.0",
     "express": "^4.13.3",
+    "redux-devtools": "^3.1.1",
+    "redux-devtools-dock-monitor": "^1.1.0",
+    "redux-devtools-log-monitor": "^1.0.5",
     "webpack": "^1.9.11",
     "webpack-dev-middleware": "^1.2.0",
     "webpack-hot-middleware": "^2.2.0"
