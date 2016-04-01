@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "server": "node server/server.js",
-    "start": "node server.js"
+    "client": "node server.js",
+    "start": "concurrently --kill-others \"npm run server\" \"npm run client\""
   },
   "author": "Auth0",
   "license": "MIT",
@@ -19,7 +20,11 @@
     "babel-core": "^5.6.18",
     "babel-loader": "^5.1.4",
     "babel-plugin-react-transform": "^1.1.0",
+    "concurrently": "^2.0.0",
     "express": "^4.13.3",
+    "redux-devtools": "^3.1.1",
+    "redux-devtools-dock-monitor": "^1.1.0",
+    "redux-devtools-log-monitor": "^1.0.5",
     "webpack": "^1.9.11",
     "webpack-dev-middleware": "^1.2.0",
     "webpack-hot-middleware": "^2.2.0"

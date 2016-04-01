@@ -19,10 +19,7 @@ npm install
 cd server && npm install
 cd ..
 
-# Run the server
-npm run server
-
-# New terminal window
+# Run app
 npm start
 ```
 
@@ -95,13 +92,13 @@ function receiveLogout() {
 // Calls the API to get a token and
 // dispatches actions along the way
 export function loginUser(creds) {
-  
+
   let config = {
     method: 'POST',
     headers: { 'Content-Type':'application/x-www-form-urlencoded' },
     body: `username=${creds.username}&password=${creds.password}`
   }
-  
+
   return dispatch => {
     // We dispatch requestLogin to kickoff the call to the API
     dispatch(requestLogin(creds))
@@ -119,7 +116,7 @@ export function loginUser(creds) {
         else {
           // If login was successful, set the token in local storage
           localStorage.setItem('id_token', user.id_token)
-          
+
           // Dispatch the success action
           dispatch(receiveLogin(user))
         }
@@ -145,10 +142,10 @@ We also have actions for retreiving the quotes that uses an API middleware.
 const BASE_URL = 'http://localhost:3001/api/'
 
 function callApi(endpoint, authenticated) {
-  
+
   let token = localStorage.getItem('id_token') || null
   let config = {}
-  
+
   if(authenticated) {
     if(token) {
       config = {
@@ -158,7 +155,7 @@ function callApi(endpoint, authenticated) {
       throw "No token saved!"
     }
   }
-  
+
   return fetch(BASE_URL + endpoint, config)
     .then(response =>
       response.text()
@@ -167,7 +164,7 @@ function callApi(endpoint, authenticated) {
       if (!response.ok) {
         return Promise.reject(text)
       }
-      
+
       return text
     }).catch(err => console.log(err))
 }
@@ -175,18 +172,18 @@ function callApi(endpoint, authenticated) {
 export const CALL_API = Symbol('Call API')
 
 export default store => next => action => {
-  
+
   const callAPI = action[CALL_API]
-  
+
   // So the middleware doesn't get applied to every single action
   if (typeof callAPI === 'undefined') {
     return next(action)
   }
-  
+
   let { endpoint, types, authenticated } = callAPI
-  
+
   const [ requestType, successType, errorType ] = types
-  
+
   // Passing the authenticated boolean back in our data will let us distinguish between normal and secret quotes
   return callApi(endpoint, authenticated).then(
     response =>
@@ -216,7 +213,7 @@ export function fetchQuote() {
   }
 }
 
-// Same API middlware is used to get a 
+// Same API middlware is used to get a
 // secret quote, but we set authenticated
 // to true so that the auth header is sent
 export function fetchSecretQuote() {
@@ -236,7 +233,7 @@ The reducers return new objects with the data carried by the actions.
 // reducers.js
 
 import { combineReducers } from 'redux'
-import { 
+import {
   LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE, LOGOUT_SUCCESS,
   QUOTE_REQUEST, QUOTE_SUCCESS, QUOTE_FAILURE
 } from './actions'
