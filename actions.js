@@ -33,18 +33,28 @@ function lockError(err) {
 
 // Opens the Lock widget and
 // dispatches actions along the way
+const lock = new Auth0Lock('YOUR_CLIENT_ID', 'YOUR_CLIENT_DOMAIN');
+
 export function login() {
-  const lock = new Auth0Lock('YOUR_CLIENT_ID', 'YOUR_CLIENT_DOMAIN');
   return dispatch => {
-    lock.show((err, profile, token) => {
-      if(err) {
-        dispatch(lockError(err))
-        return
-      }
-      localStorage.setItem('profile', JSON.stringify(profile))
-      localStorage.setItem('id_token', token)
-      dispatch(lockSuccess(profile, token))
-    })
+    lock.show()
+  }
+}
+
+export function authenticate(){
+  return dispatch => {
+    lock.on("authenticated", function(authResult) {
+      // Use the token in authResult to getUserInfo() and save it to localStorage
+      lock.getUserInfo(authResult.accessToken, function(error, profile) {
+        if (error) {
+          // Handle error
+          return dispatch(lockError(error));
+        }
+        localStorage.setItem('profile', JSON.stringify(profile))
+        localStorage.setItem('id_token', authResult.accessToken)
+        return dispatch(lockSuccess(profile,authResult.accessToken));
+      });
+    });
   }
 }
 
@@ -78,6 +88,7 @@ export function logoutUser() {
   return dispatch => {
     dispatch(requestLogout())
     localStorage.removeItem('id_token')
+    localStorage.removeItem('profile')
     dispatch(receiveLogout())
   }
 }
