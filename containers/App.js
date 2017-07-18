@@ -1,11 +1,15 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
-import { loginUser, fetchQuote, fetchSecretQuote } from '../actions'
+import { loginUser, fetchQuote, fetchSecretQuote, authenticate } from '../actions'
 import Login from '../components/Login'
 import Navbar from '../components/Navbar'
 import Quotes from '../components/Quotes'
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+    this.props.dispatch(authenticate());
+  }
   
   render() {
     const { dispatch, quote, isAuthenticated, errorMessage, isSecretQuote } = this.props
